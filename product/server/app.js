@@ -49,9 +49,9 @@ app.post("/api/logout", async (request, res) => {
 });
 
 app.post("/api/:alias", async (request, res) => {
-	if (!request.session.email) {
-		return res.status(401).send({error: "you need to login"});
-	}
+	// if (!request.session.email) {
+	// 	return res.status(401).send({error: "you need to login"});    //로그인했는지 검증하는 부분
+	// }
 	try {
 		res.send(await req.db(request.params.alias));
 	} catch (err) {
