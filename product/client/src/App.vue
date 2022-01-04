@@ -1,9 +1,8 @@
 <template>
 	<div>
-		<!-- 네비게이션 바 -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 			<div class="container-fluid">
-				<a class="navbar-brand" href="pro_list.html">판매웹앱연습</a>
+				<a class="navbar-brand" href="#">Soldout</a>
 				<button
 					class="navbar-toggler"
 					type="button"
@@ -18,7 +17,7 @@
 				<div class="collapse navbar-collapse" id="navbarSupportedContent">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 						<li class="nav-item">
-							<router-link class="nav-link" to="/">HOME</router-link>
+							<router-link class="nav-link" to="/">홈</router-link>
 						</li>
 						<li class="nav-item">
 							<router-link class="nav-link active" to="/">
@@ -34,6 +33,17 @@
 							<router-link class="nav-link" to="/create">
 								제품등록페이지
 							</router-link>
+						</li>
+						<li v-if="user.email == undefined">
+							<button class="btn btn-danger" type="button" @click="kakaoLogin">
+								로그인
+							</button>
+						</li>
+						<li v-else>빡큐</li>
+						<li>
+							<button class="btn btn-danger" type="button" @click="kakaoLogout">
+								로그아웃
+							</button>
 						</li>
 					</ul>
 					<form class="d-flex">
@@ -51,7 +61,7 @@
 			</div>
 		</nav>
 		<router-view />
-		<!-- 푸터 -->
+
 		<footer class="mt-5 py-5 bg-dark">
 			<div class="row">
 				<div class="col-12 col-md">
@@ -74,12 +84,14 @@
 							d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"
 						/>
 					</svg>
-					<small class="d-block mb-3 text-muted">&copy; 2017–2021</small>
+					<small class="d-block mb-3 text-muted">&copy; 2017-2020</small>
 				</div>
 				<div class="col-6 col-md">
 					<h5>Features</h5>
 					<ul class="list-unstyled text-small">
-						<li><a class="link-secondary" href="#">Cool stuff</a></li>
+						<li>
+							<a class="link-secondary" href="#">Cool stuff</a>
+						</li>
 						<li><a class="link-secondary" href="#">Random feature</a></li>
 						<li><a class="link-secondary" href="#">Team feature</a></li>
 						<li><a class="link-secondary" href="#">Stuff for developers</a></li>
@@ -118,8 +130,57 @@
 		</footer>
 	</div>
 </template>
+<script>
+export default {
+	computed: {
+		user() {
+			return this.$store.state.user;
+		}
+	},
+	methods: {
+		getProfile(authObj) {
+			console.log(authObj);
+			window.Kakao.API.request({
+				url: "/v2/user/me",
+				success: (res) => {
+					let kakao_account = res.kakao_account;
+					console.log(kakao_account);
+					this.login(kakao_account);
+					alert("로그인 성공!");
+				}
+			});
+		},
+		kakaoLogin() {
+			window.Kakao.Auth.login({
+				scope: "profile_nickname, account_email, gender",
+				success: this.getProfile
+			});
+		},
+		async login(kakao_account) {
+			await this.$api("/api/login", {
+				param: [
+					{
+						email: kakao_account.email,
+						nickname: kakao_account.profile.nickname
+					},
+					{nickname: kakao_account.profile.nickname}
+				]
+			});
 
-<!--<style>
+			this.$store.commit("user", kakao_account);
+		},
+		kakaoLogout() {
+			window.Kakao.Auth.logout((response) => {
+				console.log(response);
+				this.$store.commit("user", {});
+				alert("로그아웃");
+				this.$router.push({path: "/"});
+			});
+		}
+	}
+};
+</script>
+<style>
 #app {
 	font-family: Avenir, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
@@ -141,4 +202,3 @@
 	color: #42b983;
 }
 </style>
--->

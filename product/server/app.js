@@ -15,6 +15,12 @@ app.use(
 	})
 );
 
+app.use(
+	express.json({
+		limit: "50mb"
+	})
+);
+
 const server = app.listen(3000, () => {
 	console.log("써버 구동중 port:3000");
 });
@@ -39,8 +45,25 @@ const db = {
 const dbPool = require("mysql").createPool(db);
 
 app.post("/api/login", async (request, res) => {
-	request.session["email"] = "jaesangv@naver.com";
-	res.send("login okay");
+	// request.session["email"] = "jaesangv@naver.com";
+	// res.send("login okay");
+	try {
+		await req.db("signUp", request.body.param);
+		if (request.body.param.length > 0) {
+			for (let key in request.body.param[0]) {
+				request.session[key] = request.body.param[0][key];
+			}
+			res.send(request.body.param[0]);
+		} else {
+			res.send({
+				error: "관리자에게 문의하세요 에러!"
+			});
+		}
+	} catch (err) {
+		res.send({
+			error: "DB access error"
+		});
+	}
 });
 
 app.post("/api/logout", async (request, res) => {
@@ -53,7 +76,7 @@ app.post("/api/:alias", async (request, res) => {
 	// 	return res.status(401).send({error: "you need to login"});    //로그인했는지 검증하는 부분
 	// }
 	try {
-		res.send(await req.db(request.params.alias));
+		res.send(await req.db(request.params.alias, request.body.param));
 	} catch (err) {
 		res.status(500).send({
 			error: err
