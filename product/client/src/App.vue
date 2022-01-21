@@ -51,7 +51,21 @@
 							type="search"
 							placeholder="Search"
 							aria-label="Search"
+							list="data_list"
 						/>
+						<datalist id="data_list">
+							<option value="닭고기" />
+							<option value="소고기" />
+							<option value="돼지고기" />
+							<option value="밀키트" />
+							<option value="완제품" />
+							<option value="반조리" />
+							<option value="소시지" />
+							<option value="닭꼬치" />
+							<option value="탕" />
+							<option value="국" />
+							<option value="레토르트" />
+						</datalist>
 						<button class="btn btn-outline-success" type="submit">
 							Search
 						</button>
